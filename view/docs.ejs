@@ -1,0 +1,319 @@
+<%- include('partials/header', { title: 'Dokumentasi API' }) %>
+
+<!-- Page Header -->
+<div class="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4 font-medium">
+  <div>
+    <h1 class="text-xl font-medium text-gray-900 tracking-tight">Dokumentasi API</h1>
+    <p class="text-xs font-medium text-gray-900 mt-1">Integrasikan layanan kami ke sistem Anda dengan mudah.</p>
+  </div>
+</div>
+
+<!-- Global API Tester / Console -->
+<div id="apiTesterCard" class="card-custom p-6 md:p-8 mb-10 transition-all duration-300 border-t-4 border-t-gray-900 font-medium w-full max-w-full">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center font-medium shrink-0">
+      <i class="fas fa-terminal text-xs"></i>
+    </div>
+    <h2 class="text-xl font-medium text-gray-900 truncate">API Console (Live Test)</h2>
+  </div>
+
+  <div class="space-y-5 font-medium">
+    <!-- API Key Input -->
+    <div>
+      <label class="block text-xs font-medium text-gray-900 mb-1.5">Kunci API (Parameter: ?apikey=...)</label>
+      <input type="text" id="apiKey" value="<%= userApiKey %>" class="form-control-custom text-xs font-medium text-gray-700 bg-gray-50 w-full" placeholder="Masukkan API Key Anda">
+    </div>
+
+    <!-- Endpoint Selection -->
+    <div>
+      <label class="block text-xs font-medium text-gray-900 mb-1.5">Pilih Endpoint (Semua menggunakan GET)</label>
+      <select id="endpointSelector" onchange="updateDynamicFields()" class="form-control-custom text-xs font-medium text-gray-700 w-full">
+        <option value="balance">GET /api/v1/balance (Cek Saldo User)</option>
+        <option value="create_invoice">GET /api/v1/invoice (Membuat Invoice)</option>
+        <option value="check_invoice">GET /api/v1/invoice/status?invoice_id=... (Cek Status Invoice)</option>
+      </select>
+    </div>
+
+    <!-- Dynamic Input Fields (Query/Params) -->
+    <div id="dynamicFieldsContainer" class="bg-gray-100 border border-gray-200 rounded-lg p-4 space-y-4 hidden font-medium w-full">
+      
+      <!-- Input Nominal (Hanya untuk Buat Invoice) -->
+      <div id="fieldAmount" class="hidden">
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Parameter: Nominal Deposit (Rp)</label>
+        <input type="number" id="inputAmount" class="form-control-custom text-xs font-medium text-gray-700 w-full" placeholder="Contoh: 10000" min="1000">
+        <p class="text-xs font-medium text-gray-900 mt-1">Sistem otomatis menyematkannya ke dalam URL (<code class="font-medium bg-gray-200 px-1 rounded break-all">&amount=10000</code>).</p>
+      </div>
+
+      <!-- Input Invoice ID (Hanya untuk Cek Invoice) -->
+      <div id="fieldInvoiceId" class="hidden">
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Parameter: Invoice ID</label>
+        <input type="text" id="inputInvoiceId" class="form-control-custom text-xs font-medium text-gray-700 w-full" placeholder="Contoh: 64c8d9e...">
+        <p class="text-xs font-medium text-gray-900 mt-1">Sistem otomatis menyematkannya ke dalam URL (<code class="font-medium bg-gray-200 px-1 rounded break-all">&id=...</code>).</p>
+      </div>
+
+    </div>
+
+    <!-- Action Button -->
+    <div class="pt-2">
+      <button onclick="sendRequest()" id="btnSend" class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 w-full sm:w-auto px-8 py-3 text-xs font-medium flex items-center justify-center gap-2 rounded-lg transition-all">
+        <i class="fas fa-paper-plane text-xs"></i> Kirim Request
+      </button>
+    </div>
+
+    <!-- Response Area -->
+    <div id="responseContainer" class="mt-6 hidden font-medium w-full">
+      <label class="block text-xs font-medium text-gray-900 mb-1.5">Response Data</label>
+      <pre id="response" class="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs font-medium overflow-x-auto break-words whitespace-pre-wrap leading-relaxed border border-gray-800 shadow-inner max-h-96 w-full"></pre>
+    </div>
+  </div>
+</div>
+
+<!-- Endpoints List -->
+<div class="mb-4 flex items-center justify-between font-medium">
+  <h2 class="text-xl font-medium text-gray-900">Panduan Endpoint API</h2>
+</div>
+
+<div class="space-y-6 font-medium w-full max-w-full">
+  
+  <!-- 1. Cek Saldo User -->
+  <div class="card-custom p-6 font-medium w-full overflow-hidden">
+    <!-- Judul Endpoint -->
+    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+      <i class="fas fa-wallet text-gray-700"></i> Cek Saldo User
+    </h3>
+    
+    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-5 border-b border-gray-100 pb-4 w-full">
+      <div class="flex items-center gap-3 w-full md:w-auto min-w-0 flex-1">
+        <div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md pl-3 pr-1 py-1 w-full">
+          <span class="text-xs font-medium text-gray-900 mr-3 break-all" id="url-balance">Memuat...</span>
+          <button onclick="copyToClipboard('url-balance')" class="shrink-0 p-1.5 text-gray-900 hover:text-white hover:bg-gray-900 rounded transition-colors group" title="Salin Endpoint">
+            <i class="far fa-copy text-xs group-hover:scale-110 transition-transform"></i>
+          </button>
+        </div>
+      </div>
+      <button onclick="loadToConsole('balance')" class="w-full md:w-auto shrink-0 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 border border-gray-900 whitespace-nowrap">
+        <i class="fas fa-play text-xs"></i> Test API
+      </button>
+    </div>
+    
+    <p class="text-xs font-medium text-gray-600 mb-4">Cek sisa saldo aktif pada akun Anda secara real-time.</p>
+    
+    <h4 class="text-xs font-medium text-gray-900 mb-2">Contoh Response:</h4>
+    <pre class="bg-gray-50 text-gray-700 font-medium p-4 rounded-lg text-xs border border-gray-200 overflow-x-auto break-words whitespace-pre-wrap leading-relaxed w-full">{
+  "balance": 100000
+}</pre>
+  </div>
+
+  <!-- 2. Membuat Invoice -->
+  <div class="card-custom p-6 font-medium w-full overflow-hidden">
+    <!-- Judul Endpoint -->
+    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+      <i class="fas fa-file-invoice-dollar text-gray-700"></i> Membuat Invoice
+    </h3>
+
+    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-5 border-b border-gray-100 pb-4 w-full">
+      <div class="flex items-center gap-3 w-full md:w-auto min-w-0 flex-1">
+        <div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md pl-3 pr-1 py-1 w-full">
+          <span class="text-xs font-medium text-gray-900 mr-3 break-all" id="url-create">Memuat...</span>
+          <button onclick="copyToClipboard('url-create')" class="shrink-0 p-1.5 text-gray-900 hover:text-white hover:bg-gray-900 rounded transition-colors group" title="Salin Endpoint">
+            <i class="far fa-copy text-xs group-hover:scale-110 transition-transform"></i>
+          </button>
+        </div>
+      </div>
+      <button onclick="loadToConsole('create_invoice')" class="w-full md:w-auto shrink-0 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 border border-gray-900 whitespace-nowrap">
+        <i class="fas fa-play text-xs"></i> Test API
+      </button>
+    </div>
+    
+    <p class="text-xs font-medium text-gray-600 mb-4">Buat tagihan/invoice deposit baru untuk menghasilkan QRIS dengan mengirimkan nominal melalui parameter URL.</p>
+
+    <h4 class="text-xs font-medium text-gray-900 mb-2">Contoh Response:</h4>
+    <pre class="bg-gray-50 text-gray-700 font-medium p-4 rounded-lg text-xs border border-gray-200 overflow-x-auto break-words whitespace-pre-wrap leading-relaxed w-full">{
+  "success": true,
+  "invoice_id": "64c8d9e...",
+  "amount": 10000,
+  "fee": 123,
+  "total": 10123,
+  "qris_image": "https://...",
+  "expired_at": "2025-01-01 12:00:00"
+}</pre>
+  </div>
+
+  <!-- 3. Cek Status Invoice -->
+  <div class="card-custom p-6 font-medium w-full overflow-hidden">
+    <!-- Judul Endpoint -->
+    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+      <i class="fas fa-search-dollar text-gray-700"></i> Cek Status Invoice
+    </h3>
+
+    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-5 border-b border-gray-100 pb-4 w-full">
+      <div class="flex items-center gap-3 w-full md:w-auto min-w-0 flex-1">
+        <div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md pl-3 pr-1 py-1 w-full">
+          <span class="text-xs font-medium text-gray-900 mr-3 break-all" id="url-check">Memuat...</span>
+          <button onclick="copyToClipboard('url-check')" class="shrink-0 p-1.5 text-gray-900 hover:text-white hover:bg-gray-900 rounded transition-colors group" title="Salin Endpoint">
+            <i class="far fa-copy text-xs group-hover:scale-110 transition-transform"></i>
+          </button>
+        </div>
+      </div>
+      <button onclick="loadToConsole('check_invoice')" class="w-full md:w-auto shrink-0 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 border border-gray-900 whitespace-nowrap">
+        <i class="fas fa-play text-xs"></i> Test API
+      </button>
+    </div>
+    
+    <p class="text-xs font-medium text-gray-600 mb-4">Cek status pembayaran invoice (pending, paid, expired) berdasarkan ID.</p>
+    
+    <h4 class="text-xs font-medium text-gray-900 mb-2">Contoh Response:</h4>
+    <pre class="bg-gray-50 text-gray-700 font-medium p-4 rounded-lg text-xs border border-gray-200 overflow-x-auto break-words whitespace-pre-wrap leading-relaxed w-full">{
+  "invoice_id": "64c8d9e...",
+  "amount": 10000,
+  "fee": 123,
+  "total": 10123,
+  "status": "pending",
+  "qris_image": "https://...",
+  "expired_at": "2025-01-01 12:00:00",
+  "created_at": "2025-01-01 11:30:00"
+}</pre>
+  </div>
+
+</div>
+
+<script>
+  // Setel URL Endpoint dengan Domain secara dinamis saat halaman dimuat
+  document.addEventListener("DOMContentLoaded", () => {
+    const baseUrl = window.location.origin;
+    document.getElementById('url-balance').innerText = baseUrl + '/api/v1/balance?apikey={api_key}';
+    document.getElementById('url-create').innerText = baseUrl + '/api/v1/invoice?apikey={api_key}&amount={nominal}';
+    document.getElementById('url-check').innerText = baseUrl + '/api/v1/invoice/status?apikey={api_key}&invoice_id={invoice_id}';
+  });
+
+  // Fungsi menyalin URL Endpoint ke Clipboard
+  function copyToClipboard(elementId) {
+    const text = document.getElementById(elementId).innerText;
+    
+    const tempInput = document.createElement("input");
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+    
+    if (typeof showToast === 'function') {
+      showToast('Endpoint berhasil disalin', 'success');
+    } else {
+      alert(`Berhasil disalin:\n${text}`);
+    }
+  }
+
+  // Mengatur visibilitas form input dinamis berdasarkan pilihan endpoint
+  function updateDynamicFields() {
+    const selector = document.getElementById('endpointSelector').value;
+    const container = document.getElementById('dynamicFieldsContainer');
+    const fieldAmount = document.getElementById('fieldAmount');
+    const fieldInvoiceId = document.getElementById('fieldInvoiceId');
+
+    // Sembunyikan semuanya terlebih dahulu
+    fieldAmount.classList.add('hidden');
+    fieldInvoiceId.classList.add('hidden');
+
+    if (selector === 'balance') {
+      container.classList.add('hidden');
+    } else {
+      container.classList.remove('hidden');
+      if (selector === 'create_invoice') {
+        fieldAmount.classList.remove('hidden');
+      } else if (selector === 'check_invoice') {
+        fieldInvoiceId.classList.remove('hidden');
+      }
+    }
+  }
+
+  // Dipanggil saat tombol "Test API" pada dokumentasi ditekan
+  function loadToConsole(endpointId) {
+    document.getElementById('endpointSelector').value = endpointId;
+    updateDynamicFields();
+    
+    // Sembunyikan response lama jika ada
+    document.getElementById('responseContainer').classList.add('hidden');
+    
+    // Gulir ke atas menuju Console
+    const consoleCard = document.getElementById('apiTesterCard');
+    consoleCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Beri efek highlight sejenak
+    consoleCard.classList.add('ring-2', 'ring-gray-900', 'ring-offset-2');
+    setTimeout(() => {
+      consoleCard.classList.remove('ring-2', 'ring-gray-900', 'ring-offset-2');
+    }, 1200);
+  }
+
+  // Fungsi untuk mengeksekusi request menggunakan API Key di Query Parameter
+  async function sendRequest() {
+    const btnSend = document.getElementById('btnSend');
+    const responseContainer = document.getElementById('responseContainer');
+    const responseEl = document.getElementById('response');
+    
+    let apiKey = document.getElementById('apiKey').value;
+    if (!apiKey) {
+      alert("Harap masukkan API Key!");
+      return;
+    }
+    apiKey = encodeURIComponent(apiKey.trim());
+    
+    const selector = document.getElementById('endpointSelector').value;
+    
+    const headers = { 
+      'Content-Type': 'application/json'
+    };
+
+    let url = '';
+    const options = { method: 'GET', headers }; 
+
+    // Set Up URL berdasarkan pilihan dengan Query Parameter apikey
+    if (selector === 'balance') {
+      url = `/api/v1/balance?apikey=${apiKey}`;
+      
+    } else if (selector === 'create_invoice') {
+      const amount = document.getElementById('inputAmount').value;
+      if (!amount) {
+        alert("Harap masukkan nominal deposit!");
+        return;
+      }
+      url = `/api/v1/invoice?apikey=${apiKey}&amount=${amount}`;
+      
+    } else if (selector === 'check_invoice') {
+      const invoiceId = document.getElementById('inputInvoiceId').value;
+      if (!invoiceId) {
+        alert("Harap masukkan ID Invoice!");
+        return;
+      }
+      url = `/api/v1/invoice/status?apikey=${apiKey}&invoice_id=${invoiceId}`;
+    }
+
+    try {
+      // Indikator Loading
+      btnSend.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Memproses...';
+      btnSend.disabled = true;
+      responseContainer.classList.remove('hidden');
+      responseEl.textContent = 'Menunggu response server...';
+      responseEl.classList.replace('text-gray-100', 'text-gray-400');
+
+      const res = await fetch(url, options);
+      const data = await res.json();
+      
+      responseEl.classList.replace('text-gray-400', 'text-gray-100');
+      responseEl.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      responseEl.classList.replace('text-gray-400', 'text-red-400');
+      responseEl.textContent = "Error: " + error.message;
+    } finally {
+      // Kembalikan tombol seperti semula
+      btnSend.innerHTML = '<i class="fas fa-paper-plane text-xs"></i> Kirim Request';
+      btnSend.disabled = false;
+    }
+  }
+
+  // Inisialisasi tampilan awal form
+  updateDynamicFields();
+</script>
+
+<%- include('partials/footer') %>

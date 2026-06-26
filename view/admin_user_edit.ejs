@@ -1,0 +1,133 @@
+<%- include('partials/header', { title: 'Edit User' }) %>
+
+<div class="max-w-2xl mx-auto md:mx-0 font-medium">
+  <a href="/admin/users" class="inline-flex items-center gap-2 text-xs font-medium text-gray-900 hover:text-gray-900 transition-colors mb-6">
+    <i class="fas fa-arrow-left text-xs"></i> Kembali ke Daftar
+  </a>
+
+  <div class="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4 font-medium">
+    <div>
+      <h1 class="text-xl font-medium text-gray-900">Edit Data Pengguna</h1>
+      <p class="text-xs font-medium text-gray-900 mt-1">Ubah username, email, saldo, atau tangguhkan akses akun pengguna.</p>
+    </div>
+  </div>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="bg-gray-200 border border-gray-300 text-gray-700 px-4 py-3 rounded-lg mb-8 text-xs font-medium flex items-center gap-2 shadow-sm">
+      <i class="fas fa-exclamation-circle text-xl"></i> <%= error %>
+    </div>
+  <% } %>
+
+  <div class="card-custom p-6 mb-8 font-medium">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-user-pen text-xs"></i>
+      </div>
+      <h2 class="text-xl font-medium text-gray-900">Formulir Pembaruan</h2>
+    </div>
+
+    <form method="POST" action="/admin/users/<%= users._id %>/edit" class="space-y-5 font-medium" autocomplete="off">
+      
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Username</label>
+        <input name="username" value="<%= users.username %>" 
+               class="form-control-custom text-xs font-medium text-gray-700" 
+               maxlength="15" pattern="[^\s]+" title="Username tidak boleh mengandung spasi" required>
+        <p class="text-[10px] text-gray-400 mt-1">Maksimal 15 karakter, tanpa spasi, huruf kecil otomatis.</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Alamat Email</label>
+        <input name="email" type="email" value="<%= users.email %>" class="form-control-custom text-xs font-medium text-gray-700" required>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5 flex items-center justify-between">
+          <span>Password Baru</span>
+          <span class="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Kosongkan jika tidak diubah</span>
+        </label>
+        <div class="relative">
+          <input id="newPassword" name="password" type="password" placeholder="••••••••" class="form-control-custom text-xs font-medium text-gray-700 w-full pr-10">
+          <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-900 focus:outline-none transition-colors">
+            <i id="toggleIcon" class="fas fa-eye text-xs"></i>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Saldo Akun (Rp)</label>
+        <input name="balance" type="number" value="<%= users.balance %>" class="form-control-custom text-xs font-medium text-gray-700">
+      </div>
+
+      <div class="mt-4 bg-gray-100 border border-gray-200 p-4 rounded-lg flex items-start gap-3 transition-colors hover:bg-gray-200 font-medium">
+        <div class="flex items-center h-5 mt-0.5">
+          <input name="suspended" type="checkbox" id="suspendCheckbox" class="w-4 h-4 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 cursor-pointer" <%= users.suspended ? 'checked' : '' %>>
+        </div>
+        <div class="flex flex-col">
+          <label for="suspendCheckbox" class="text-xs font-medium text-gray-900 cursor-pointer">Suspend (Tangguhkan) Akun Ini</label>
+          <p class="text-xs font-medium text-gray-900 mt-1 leading-relaxed">Jika dicentang, pengguna ini tidak akan dapat login, membuat transaksi, atau melakukan penarikan saldo.</p>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button type="submit" class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 w-full py-3 text-xs font-medium flex items-center justify-center gap-2 rounded-lg transition-all">
+          <i class="fas fa-save text-xs"></i> Simpan Perubahan
+        </button>
+      </div>
+
+      <div class="pt-4 border-t border-gray-200 mt-6">
+        <button type="button" onclick="openDeleteModal()" class="w-full py-3 text-xs font-medium flex items-center justify-center gap-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all">
+          <i class="fas fa-trash-alt text-xs"></i> Hapus User Ini
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+  <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 shadow-xl">
+    <h2 class="text-lg font-medium text-gray-900 mb-2">Konfirmasi Hapus</h2>
+    <p class="text-sm text-gray-700 mb-6">Apakah Anda yakin ingin menghapus user <strong><%= users.username %></strong>? Seluruh data terkait (invoice, transaksi, withdrawal, API key) akan dihapus permanen.</p>
+    <div class="flex gap-3 justify-end">
+      <button onclick="closeDeleteModal()" class="px-4 py-2 text-xs font-medium bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition">Batal</button>
+      <form id="deleteForm" method="POST" action="/admin/users/<%= users._id %>/delete" class="m-0">
+        <button type="submit" class="px-4 py-2 text-xs font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Ya, Hapus</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('hidden');
+  }
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+  }
+  function copyApiKey(key) {
+    navigator.clipboard.writeText(key).then(() => {
+      alert('API Key disalin!');
+    });
+  }
+
+  // Script untuk Toggle Buka/Tutup Password
+  document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('newPassword');
+    const toggleIcon = document.getElementById('toggleIcon');
+
+    if (togglePassword && passwordInput) {
+      togglePassword.addEventListener('click', function () {
+        // Toggle tipe input antara 'password' dan 'text'
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle class icon mata
+        toggleIcon.classList.toggle('fa-eye');
+        toggleIcon.classList.toggle('fa-eye-slash');
+      });
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

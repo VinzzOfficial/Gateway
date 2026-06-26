@@ -1,0 +1,100 @@
+<%- include('partials/header', { title: 'Deposit & Riwayat' }) %>
+
+<!-- Page Header -->
+<div class="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4 font-medium">
+  <div>
+    <h1 class="text-xl font-medium text-gray-900 tracking-tight">Deposit QRIS</h1>
+    <p class="text-xs font-medium text-gray-900 mt-1">Buat invoice baru dan pantau status riwayat deposit Anda.</p>
+  </div>
+</div>
+
+<!-- Alert Error -->
+<% if (typeof error !== 'undefined' && error) { %>
+  <!-- Diubah text-sm ke text-xs -->
+  <div class="bg-gray-200 border border-gray-300 text-gray-700 px-4 py-3 rounded-lg mb-8 text-xs font-medium flex items-center gap-2">
+    <i class="fas fa-exclamation-circle text-xl"></i> <%= error %>
+  </div>
+<% } %>
+
+<!-- Form Pembuatan Invoice -->
+<div class="card-custom p-6 mb-8 font-medium">
+  <div class="flex items-center gap-3 mb-5">
+    <div class="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center font-medium">
+      <i class="fas fa-plus text-xs"></i>
+    </div>
+    <!-- uppercase dan tracking-wider dihapus, text-sm diubah ke text-xl -->
+    <h2 class="text-xl font-medium text-gray-900">Buat Invoice Baru</h2>
+  </div>
+
+  <form method="POST" action="/invoice/create" class="flex flex-col sm:flex-row gap-4 items-end font-medium">
+    <div class="flex-1 w-full">
+      <!-- text-sm diubah ke text-xs -->
+      <label class="block text-xs font-medium text-gray-700 mb-1.5">Nominal (Min. Rp <%= minDeposit.toLocaleString() %>)</label>
+      <input name="amount" type="number" class="form-control-custom text-xs font-medium text-gray-700" placeholder="Contoh: 10000" min="<%= minDeposit %>" required>
+    </div>
+    <!-- text-sm diubah ke text-xs -->
+    <button class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 px-6 py-2.5 text-xs font-medium flex items-center justify-center gap-2 whitespace-nowrap rounded-lg transition-all">
+      <i class="fas fa-file-invoice text-xs"></i> Buat Invoice
+    </button>
+  </form>
+</div>
+
+<!-- Tabel Riwayat Deposit -->
+<div class="mb-4 flex items-center justify-between font-medium">
+  <!-- text-lg diubah ke text-xl -->
+  <h2 class="text-xl font-medium text-gray-900">Riwayat Deposit <p class="text-xs text-gray-900 font-medium mt-1">Semua riwayat transaksi akan di hapus setelah 1 Hari.</p></h2>
+</div>
+
+<div class="card-custom overflow-hidden mb-8 font-medium">
+  <!-- Tambahkan overflow-y-auto dan max-h-[400px] untuk scroll vertikal -->
+  <div class="overflow-x-auto overflow-y-auto max-h-[400px]">
+    <!-- text-sm diubah ke text-xs -->
+    <table class="w-full text-xs text-left whitespace-nowrap font-medium">
+      <!-- uppercase dihapus, tambahkan sticky top-0 dan z-10 agar header tetap di atas saat di-scroll -->
+      <thead class="bg-gray-100 text-xs text-gray-900 font-medium border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <tr>
+          <th class="px-6 py-4 font-medium">ID Transaksi</th>
+          <th class="px-6 py-4 font-medium">Jumlah</th>
+          <th class="px-6 py-4 font-medium">Biaya (Fee)</th>
+          <th class="px-6 py-4 font-medium">Status</th>
+          <th class="px-6 py-4 font-medium">Batas Waktu</th>
+          <th class="px-6 py-4 font-medium">Tanggal</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 font-medium">
+        <% if (deposits.length === 0) { %>
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center font-medium text-gray-900 text-xs">Belum ada riwayat deposit.</td>
+          </tr>
+        <% } else { %>
+          <% deposits.forEach(t => { %>
+          <tr class="hover:bg-gray-100 transition-colors">
+            <td class="px-6 py-4 text-xs">
+              <!-- text-[10px] diubah ke text-xs -->
+              <a href="/invoice/<%= t.reference %>" class="text-xs font-medium text-blue-600 hover:text-blue-800 underline flex items-center gap-1">
+                <%= t.reference %>
+              </a>
+            </td>
+            <td class="px-6 py-4 font-medium text-gray-900 text-xs">Rp <%= t.amount.toLocaleString() %></td>
+            <td class="px-6 py-4 font-medium text-gray-900 text-xs">Rp <%= t.fee.toLocaleString() %></td>
+            <td class="px-6 py-4 text-xs">
+              <span class="status-badge font-medium <%= t.status==='paid'?'status-success':t.status==='expired'?'status-error':'status-pending' %>">
+                <% if(t.status==='paid'){ %><i class="fas fa-check-circle"></i><% } %>
+                <% if(t.status==='pending'){ %><i class="fas fa-clock"></i><% } %>
+                <% if(t.status==='expired'){ %><i class="fas fa-times-circle"></i><% } %>
+                <!-- Jika ingin teks status tidak kapital semua, toUpperCase() bisa dihapus sesuai kebutuhan, 
+                     tapi ini bawaan dari logic. Saya biarkan bawaan server-side, hanya CSS uppercase yang dihapus -->
+                <%= t.status.toUpperCase() %>
+              </span>
+            </td>
+            <td class="px-6 py-4 text-xs font-medium text-gray-900"><%= t.expiredAt ? t.expiredAt.toLocaleString() : '-' %></td>
+            <td class="px-6 py-4 text-xs font-medium text-gray-900"><%= t.createdAt.toLocaleString() %></td>
+          </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

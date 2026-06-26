@@ -1,0 +1,120 @@
+<%- include('partials/header', { title: 'Permintaan Withdraw' }) %>
+
+<!-- Page Header -->
+<div class="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4 font-medium">
+  <div>
+    <h1 class="text-xl font-medium text-gray-900">Permintaan Withdraw</h1>
+    <p class="text-xs font-medium text-gray-900 mt-1">Kelola dan proses pengajuan penarikan saldo dari pengguna.</p>
+  </div>
+</div>
+
+<!-- Search Form -->
+<form class="mb-8 flex flex-col sm:flex-row gap-3 font-medium" method="GET">
+  <div class="relative flex-1 max-w-md">
+    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+      <i class="fas fa-search text-xs"></i>
+    </div>
+    <input name="search" value="<%= typeof search !== 'undefined' ? search : '' %>" placeholder="Cari username atau email pengguna..." class="form-control-custom pl-10 w-full py-2.5 text-xs font-medium text-gray-700">
+  </div>
+  <button type="submit" class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 px-6 py-2.5 text-xs font-medium flex items-center justify-center gap-2 whitespace-nowrap rounded-lg transition-all">
+    Cari Data
+  </button>
+</form>
+
+<!-- Table -->
+<div class="card-custom overflow-hidden mb-8 font-medium">
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs text-left whitespace-nowrap min-w-[850px] font-medium">
+      <thead class="bg-gray-100 text-xs text-gray-900 font-medium border-b border-gray-200">
+        <tr>
+          <th class="px-5 py-4 font-medium">Pengguna</th>
+          <th class="px-5 py-4 font-medium">Jumlah</th>
+          <th class="px-5 py-4 font-medium">Biaya (Fee)</th>
+          <th class="px-5 py-4 font-medium">Metode Akun</th>
+          <th class="px-5 py-4 font-medium">No Rekening</th>
+          <th class="px-5 py-4 font-medium">Status</th>
+          <th class="px-5 py-4 font-medium">Keterangan</th>
+          <th class="px-5 py-4 font-medium">Tanggal</th>
+          <th class="px-5 py-4 text-center font-medium">Aksi</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 font-medium">
+        <% if (withdrawals.length === 0) { %>
+          <tr>
+            <td colspan="9" class="px-5 py-8 text-center font-medium text-gray-900 text-xs">Belum ada permintaan penarikan.</td>
+          </tr>
+        <% } else { %>
+          <% withdrawals.forEach(w => { %>
+          <tr class="hover:bg-gray-100 transition-colors">
+            <td class="px-5 py-3 text-xs">
+              <div class="flex flex-col">
+                <span class="text-xs font-medium text-gray-900"><%= w.userId ? w.userId.username : 'Pengguna Dihapus' %></span>
+                <span class="text-xs font-medium text-gray-900"><%= w.userId?.email || '-' %></span>
+              </div>
+            </td>
+            <td class="px-5 py-3 text-xs font-medium text-gray-900">Rp <%= w.amount.toLocaleString() %></td>
+            <td class="px-5 py-3 text-xs font-medium text-gray-900">Rp <%= w.fee ? w.fee.toLocaleString() : '0' %></td>
+            <td class="px-5 py-3 text-xs font-medium text-gray-700"><%= w.method %></td>
+            <td class="px-5 py-3 text-xs">
+              <div class="font-medium text-gray-900"><%= w.accountNumber || '-' %></div>
+              <div class="text-[10px] text-gray-900 mt-0.5">a.n <%= w.accountName || '-' %></div>
+            </td>
+            <td class="px-5 py-3 text-xs">
+              <% 
+                let statusClass = 'status-pending';
+                let statusIcon = 'fa-clock';
+                if (w.status === 'success') {
+                  statusClass = 'status-success';
+                  statusIcon = 'fa-check-circle';
+                } else if (w.status === 'rejected') {
+                  statusClass = 'status-error';
+                  statusIcon = 'fa-times-circle';
+                }
+              %>
+              <span class="status-badge font-medium <%= statusClass %>">
+                <i class="fas <%= statusIcon %> text-xs"></i> <%= w.status %>
+              </span>
+            </td>
+            <!-- Keterangan diperbarui agar tidak terpotong (menggunakan whitespace-normal) -->
+            <td class="px-5 py-3 text-xs font-medium text-gray-900 whitespace-normal min-w-[200px]">
+              <%= w.adminNote || '-' %>
+            </td>
+            <td class="px-5 py-3 text-xs font-medium text-gray-900"><%= w.createdAt.toLocaleString() %></td>
+            <td class="px-5 py-3 text-xs">
+              <% if (w.status === 'pending') { %>
+                <div class="flex flex-col items-center gap-2">
+                  <form method="POST" action="/admin/withdraw/success/<%= w._id %>" class="w-full">
+                    <button class="w-full bg-gray-900 hover:bg-gray-800 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5">
+                      <i class="fas fa-check text-xs"></i> Setujui
+                    </button>
+                  </form>
+                  
+                  <details class="w-full group [&::-webkit-details-marker]:hidden">
+                    <summary class="list-none w-full bg-gray-200 hover:bg-gray-300 text-gray-900 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                      <i class="fas fa-times text-xs"></i> Tolak
+                    </summary>
+                    <div class="mt-2 p-2 bg-gray-100 border border-gray-200 rounded-md shadow-sm">
+                      <form method="POST" action="/admin/withdraw/reject/<%= w._id %>" class="flex flex-col gap-2">
+                        <input name="note" placeholder="Alasan tolak..." class="form-control-custom text-xs font-medium text-gray-700 px-2 py-1.5" required>
+                        <button type="submit" class="bg-gray-900 hover:bg-gray-800 text-white px-2 py-1.5 rounded-md text-xs font-medium transition-colors">
+                          Kirim Penolakan
+                        </button>
+                      </form>
+                    </div>
+                  </details>
+                </div>
+              <% } else { %>
+                <div class="text-center">
+                  <span class="text-gray-900 font-medium text-xs px-3 py-1 bg-gray-100 rounded-md border border-gray-200">Selesai</span>
+                </div>
+              <% } %>
+            </td>
+          </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

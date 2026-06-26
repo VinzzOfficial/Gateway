@@ -1,0 +1,187 @@
+<%- include('partials/header', { title: 'Settings' }) %>
+
+<!-- Page Header -->
+<div class="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4 font-medium">
+  <div>
+    <h1 class="text-xl font-medium text-gray-900">Pengaturan Gateway</h1>
+    <p class="text-xs font-medium text-gray-900 mt-1">Konfigurasi sistem, kredensial API, biaya transaksi, dan otomatisasi.</p>
+  </div>
+</div>
+
+<!-- Settings Form Card -->
+<div class="card-custom p-6 md:p-8 mb-8 font-medium">
+  <form method="POST" action="/admin/settings" class="space-y-8 font-medium">
+    
+    <!-- Bagian 1: Pengaturan Umum -->
+    <div>
+      <div class="flex items-center gap-2 mb-5 border-b border-gray-200 pb-2">
+        <i class="fas fa-globe text-xl text-gray-900"></i>
+        <h2 class="text-xl font-medium text-gray-900">Pengaturan Umum</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Nama Gateway (Nama Brand)</label>
+          <input name="name" type="text" value="<%= settings.name %>" placeholder="Contoh: Dai Gateway" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Link Channel WhatsApp</label>
+          <input name="channelWhatsApp" type="url" value="<%= settings.channelWhatsApp %>" placeholder="https://whatsapp.com/channel/..." class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Judul Landing Page (Title)</label>
+          <input name="title" type="text" value="<%= settings.title %>" placeholder="Contoh: Layanan Payment Gateway Terbaik" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Deskripsi Landing Page</label>
+          <textarea name="description" rows="3" placeholder="Masukkan deskripsi singkat untuk halaman utama..." class="form-control-custom text-xs font-medium text-gray-700 resize-none"><%= settings.description %></textarea>
+        </div>
+
+        <!-- TAMBAHAN: URL Logo -->
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">URL Logo (Logo Brand)</label>
+          <input name="logoUrl" type="url" value="<%= settings.logoUrl || '' %>" placeholder="https://xxx/image.jpeg" class="form-control-custom text-xs font-medium text-gray-700">
+          <% if (settings.logoUrl) { %>
+            <div class="mt-2 flex items-center gap-2">
+              <img src="<%= settings.logoUrl %>" class="h-8 w-8 rounded object-cover" alt="Logo Preview">
+              <span class="text-xs text-gray-500">Preview logo saat ini</span>
+            </div>
+          <% } %>
+        </div>
+        <!-- AKHIR TAMBAHAN -->
+      </div>
+    </div>
+
+    <!-- Bagian 2: Kredensial API -->
+    <div>
+      <div class="flex items-center gap-2 mb-5 border-b border-gray-200 pb-2">
+        <i class="fas fa-server text-xl text-gray-900"></i>
+        <h2 class="text-xl font-medium text-gray-900">Kredensial Gateway</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Domain API Gateway</label>
+          <input name="apiDomain" type="text" value="<%= settings.apiDomain %>" placeholder="contoh: dai.biz.id" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">API Key</label>
+          <input name="apiKey" type="text" value="<%= settings.apiKey %>" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Username</label>
+          <input name="username" type="text" value="<%= settings.username %>" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Token</label>
+          <input name="token" type="text" value="<%= settings.token %>" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+      </div>
+    </div>
+
+    <!-- Bagian 3: Pengaturan Finansial -->
+    <div>
+      <div class="flex items-center gap-2 mb-5 border-b border-gray-200 pb-2">
+        <i class="fas fa-money-bill-wave text-xl text-gray-900"></i>
+        <h2 class="text-xl font-medium text-gray-900">Aturan Finansial</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Minimal Deposit</label>
+          <input name="minDeposit" type="number" value="<%= settings.minDeposit %>" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Minimal Withdraw</label>
+          <input name="minWithdraw" type="number" value="<%= settings.minWithdraw %>" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Biaya Admin (Fee) Withdraw</label>
+          <input name="feeWithdraw" type="number" value="<%= settings.feeWithdraw %>" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Maksimal Fee Transaksi Deposit</label>
+          <input name="maxFee" type="number" value="<%= settings.maxFee %>" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+      </div>
+    </div>
+
+    <!-- Bagian 4: Sistem Pengecekan -->
+    <div>
+      <div class="flex items-center gap-2 mb-5 border-b border-gray-200 pb-2">
+        <i class="fas fa-cogs text-xl text-gray-900"></i>
+        <h2 class="text-xl font-medium text-gray-900">Sistem Otomatisasi</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Interval Cek Mutasi (Detik)</label>
+          <input name="checkInterval" type="number" value="<%= settings.checkInterval %>" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        
+        <div class="md:mt-7">
+          <div class="bg-gray-100 border border-gray-200 p-3.5 rounded-lg flex items-start gap-3 transition-colors hover:bg-gray-200">
+            <div class="flex items-center h-5 mt-0.5">
+              <input name="autoCheckEnabled" type="checkbox" id="autoCheckCheckbox" class="w-4 h-4 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 cursor-pointer" <%= settings.autoCheckEnabled ? 'checked' : '' %>>
+            </div>
+            <div class="flex flex-col">
+              <label for="autoCheckCheckbox" class="text-xs font-medium text-gray-900 cursor-pointer">Aktifkan Auto Cek Mutasi</label>
+              <p class="text-xs font-medium text-gray-900 mt-0.5 leading-relaxed">Sistem akan berjalan di latar belakang untuk memverifikasi pembayaran secara otomatis.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bagian 5: Konfigurasi Email (SMTP Gmail) -->
+    <div>
+      <div class="flex items-center gap-2 mb-5 border-b border-gray-200 pb-2">
+        <i class="fas fa-envelope text-xl text-gray-900"></i>
+        <h2 class="text-xl font-medium text-gray-900">Konfigurasi SMTP Email</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Alamat Email Gmail</label>
+          <input name="smtpUser" type="email" value="<%= settings.smtpUser %>" placeholder="contoh: emailanda@gmail.com" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Password Aplikasi (App Password)</label>
+          <input name="smtpPass" type="text" value="<%= settings.smtpPass %>" placeholder="16 Karakter App Password" class="form-control-custom text-xs font-medium text-gray-700">
+          <p class="text-[10px] text-gray-500 mt-1">Gunakan "App Password" dari pengaturan keamanan Google, bukan password login biasa.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bagian 6: Konfigurasi Bot Telegram -->
+    <div>
+      <div class="flex items-center gap-2 mb-5 border-b border-gray-200 pb-2">
+        <i class="fab fa-telegram-plane text-xl text-gray-900"></i>
+        <h2 class="text-xl font-medium text-gray-900">Konfigurasi Bot Telegram</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Token Bot Telegram</label>
+          <input name="telegramBotToken" type="text" value="<%= settings.telegramBotToken %>" placeholder="Bot Token dari @BotFather" class="form-control-custom text-xs font-medium text-gray-700">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1.5">Chat ID Admin</label>
+          <input name="telegramAdminChatId" type="text" value="<%= settings.telegramAdminChatId %>" placeholder="Contoh: 123456789" class="form-control-custom text-xs font-medium text-gray-700">
+          <p class="text-[10px] text-gray-500 mt-1">Kirimkan /start ke bot Anda untuk mengetahui Chat ID, lalu masukkan di sini.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tombol Submit -->
+    <div class="pt-6 border-t border-gray-200 flex justify-end">
+      <button type="submit" class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 px-8 py-3 text-xs font-medium flex items-center justify-center gap-2 w-full sm:w-auto rounded-lg transition-all">
+        <i class="fas fa-save text-xs"></i> Simpan Pengaturan
+      </button>
+    </div>
+    
+  </form>
+</div>
+
+<%- include('partials/footer') %>

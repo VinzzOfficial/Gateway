@@ -1,0 +1,82 @@
+<%- include('partials/header', { title: 'Admin Dashboard' }) %>
+
+<!-- Page Header -->
+<div class="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4 font-medium">
+  <div>
+    <h1 class="text-xl font-medium text-gray-900">Admin Dashboard</h1>
+    <p class="text-xs font-medium text-gray-900 mt-1">Ringkasan statistik dan performa sistem keseluruhan.</p>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 font-medium">
+  
+  <!-- Total User -->
+  <div class="card-custom p-6 font-medium">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-gray-900">Total Pengguna</h2>
+      <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-users text-xl"></i>
+      </div>
+    </div>
+    <div class="text-xl font-medium text-gray-900"><%= totalUsers %></div>
+  </div>
+
+  <!-- Total Uang Masuk -->
+  <div class="card-custom p-6 font-medium">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-gray-900">Total Uang Masuk</h2>
+      <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-arrow-down text-xl"></i>
+      </div>
+    </div>
+    <div class="text-xl font-medium text-gray-900">Rp <%= totalDepositAmount.toLocaleString() %></div>
+  </div>
+
+  <!-- Total Fee Deposit -->
+  <div class="card-custom p-6 font-medium">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-gray-900">Fee TRX Masuk</h2>
+      <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-coins text-xl"></i>
+      </div>
+    </div>
+    <div class="text-xl font-medium text-gray-900">Rp <%= totalDepositFee.toLocaleString() %></div>
+  </div>
+
+  <!-- Total Withdraw -->
+  <div class="card-custom p-6 font-medium">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-gray-900">Total Withdraw</h2>
+      <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-arrow-up text-xl"></i>
+      </div>
+    </div>
+    <div class="text-xl font-medium text-gray-900">Rp <%= totalWithdrawAmount.toLocaleString() %></div>
+  </div>
+
+  <!-- Total Fee Withdraw -->
+  <div class="card-custom p-6 font-medium">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-gray-900">Fee WD Masuk</h2>
+      <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-piggy-bank text-xl"></i>
+      </div>
+    </div>
+    <div class="text-xl font-medium text-gray-900">Rp <%= totalWithdrawFee.toLocaleString() %></div>
+  </div>
+
+  <!-- Total Transaksi -->
+  <div class="card-custom p-6 font-medium">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-gray-900">Total Transaksi</h2>
+      <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-receipt text-xl"></i>
+      </div>
+    </div>
+    <div class="text-xl font-medium text-gray-900"><%= totalTransactions %></div>
+  </div>
+
+</div>
+
+<%- include('partials/footer') %>

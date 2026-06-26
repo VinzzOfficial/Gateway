@@ -1,0 +1,235 @@
+<%- include('partials/header', { title: 'Dashboard' }) %>
+
+<!-- Page Header -->
+<div class="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4 font-medium">
+  <div>
+    <h1 class="text-xl font-medium text-gray-900 tracking-tight">Dashboard</h1>
+    <p class="text-xs font-medium text-gray-900 mt-1">Selamat datang kembali, <span class="font-medium text-gray-900"><%= user.username %></span>!</p>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 font-medium">
+  <!-- Saldo -->
+  <div class="card-custom p-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-gray-900">Total Saldo</h2>
+      <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-wallet text-xl"></i>
+      </div>
+    </div>
+    <div class="text-xl font-medium text-gray-900">Rp <%= user.balance.toLocaleString() %></div>
+  </div>
+
+  <!-- Total Deposit -->
+  <div class="card-custom p-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-gray-900">Total Deposit</h2>
+      <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-arrow-down text-xl"></i>
+      </div>
+    </div>
+    <div class="text-xl font-medium text-gray-900">Rp <%= totalDeposit.toLocaleString() %></div>
+  </div>
+
+  <!-- Total Withdraw -->
+  <div class="card-custom p-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-medium text-gray-900">Total Withdraw</h2>
+      <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-arrow-up text-xl"></i>
+      </div>
+    </div>
+    <div class="text-xl font-medium text-gray-900">Rp <%= totalWithdraw.toLocaleString() %></div>
+  </div>
+</div>
+
+<!-- API Key Section -->
+<div class="card-custom p-6 mb-8 font-medium">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-key text-xs"></i>
+      </div>
+      <div>
+        <h2 class="text-xl font-medium text-gray-900">Kunci API (Apikey)</h2>
+        <p class="text-xs font-medium text-gray-900 mt-0.5">Sertakan di params query <code class="text-gray-900 text-xs">apikey</code> pada setiap request.</p>
+      </div>
+    </div>
+    <button onclick="openRegenModal()" class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 font-medium flex items-center justify-center gap-2 whitespace-nowrap rounded-lg transition-colors text-xs">
+      <i class="fas fa-rotate text-xs"></i> Buat Baru
+    </button>
+  </div>
+  
+  <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-1.5 focus-within:border-gray-900 focus-within:ring-1 focus-within:ring-gray-900 transition-all font-medium">
+    <!-- Type diubah menjadi password agar defaultnya tersensor -->
+    <input id="apiKeyField" type="password" value="<%= apiKeys.length>0 ? apiKeys[0].key : '' %>" readonly class="flex-1 bg-transparent px-3 text-xs font-medium text-gray-700 outline-none w-full">
+    
+    <!-- Group tombol Mata dan Copy -->
+    <div class="flex items-center gap-1.5 ml-2">
+      <!-- Tombol Show/Hide -->
+      <button onclick="toggleApiKey()" class="p-2.5 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-md transition-colors flex items-center justify-center group font-medium" title="Tampilkan Kunci">
+        <i id="apiKeyToggleIcon" class="far fa-eye text-xs group-hover:scale-110 transition-transform"></i>
+      </button>
+      <!-- Tombol Copy -->
+      <button onclick="copyKey()" class="p-2.5 bg-gray-900 text-white hover:bg-gray-800 rounded-md transition-colors flex items-center justify-center group font-medium" title="Salin Kunci">
+        <i class="far fa-copy text-xs group-hover:scale-110 transition-transform"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="mb-4 flex items-center justify-between font-medium">
+  <h2 class="text-xl font-medium text-gray-900">Transaksi Terbaru</h2>
+  <a href="/deposit" class="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline">Lihat Semua</a>
+</div>
+
+<div class="card-custom overflow-hidden mb-8 font-medium">
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs text-left whitespace-nowrap font-medium">
+      <thead class="bg-gray-100 text-xs text-gray-900 font-medium border-b border-gray-200">
+        <tr>
+          <th class="px-6 py-4 font-medium">ID Transaksi</th>
+          <th class="px-6 py-4 font-medium">Jumlah</th>
+          <th class="px-6 py-4 font-medium">Biaya (Fee)</th>
+          <th class="px-6 py-4 font-medium">Status</th>
+          <th class="px-6 py-4 font-medium">Batas Waktu</th>
+          <th class="px-6 py-4 font-medium">Tanggal</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 font-medium">
+        <% if (recentTrx.length === 0) { %>
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center font-medium text-gray-900 text-xs">Belum ada transaksi terbaru.</td>
+          </tr>
+        <% } else { %>
+          <% recentTrx.forEach(t => { %>
+          <tr class="hover:bg-gray-100 transition-colors">
+            <td class="px-6 py-4 text-xs">
+              <a href="/invoice/<%= t.reference %>" class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
+                <%= t.reference %> <i class="fas fa-external-link-alt text-xs opacity-50"></i>
+              </a>
+            </td>
+            <td class="px-6 py-4 font-medium text-gray-900 text-xs">Rp <%= t.amount.toLocaleString() %></td>
+            <td class="px-6 py-4 font-medium text-gray-900 text-xs">Rp <%= t.fee.toLocaleString() %></td>
+            <td class="px-6 py-4 text-xs">
+              <span class="status-badge font-medium <%= t.status==='paid'?'status-success':t.status==='expired'?'status-error':'status-pending' %>">
+                <% if(t.status==='paid'){ %><i class="fas fa-check-circle"></i><% } %>
+                <% if(t.status==='pending'){ %><i class="fas fa-clock"></i><% } %>
+                <% if(t.status==='expired'){ %><i class="fas fa-times-circle"></i><% } %>
+                <%= t.status %>
+              </span>
+            </td>
+            <td class="px-6 py-4 text-xs font-medium text-gray-900"><%= t.expiredAt ? t.expiredAt.toLocaleString() : '-' %></td>
+            <td class="px-6 py-4 text-xs font-medium text-gray-900"><%= t.createdAt.toLocaleString() %></td>
+          </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Regenerate Key -->
+<div id="regenModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-gray-900/40 backdrop-blur-sm opacity-0 transition-opacity duration-300 font-medium">
+  <div class="card-custom p-6 max-w-sm mx-4 w-full transform scale-95 transition-transform duration-300" id="regenModalContent">
+    <div class="w-12 h-12 rounded-full bg-gray-900 text-white flex items-center justify-center mb-4 text-xl font-medium">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h3 class="text-xl font-medium text-gray-900 mb-1">Buat Kunci API Baru?</h3>
+    <p class="text-xs font-medium text-gray-900 mb-6 leading-relaxed">Peringatan: Membuat kunci baru akan menonaktifkan kunci yang lama. Integrasi Anda yang ada mungkin akan terputus.</p>
+    <div class="flex gap-3">
+      <button onclick="closeRegenModal()" class="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg text-xs transition-colors">Batal</button>
+      <button onclick="doRegen()" class="flex-1 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg text-xs transition-colors">Ya, Buat Baru</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('regenModal');
+  const modalContent = document.getElementById('regenModalContent');
+
+  function openRegenModal() {
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      modal.classList.remove('opacity-0');
+      modalContent.classList.remove('scale-95');
+    }, 10);
+  }
+
+  function closeRegenModal() {
+    modal.classList.add('opacity-0');
+    modalContent.classList.add('scale-95');
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 300);
+  }
+
+  // Fungsi baru untuk Toggle/Sensor API Key
+  function toggleApiKey() {
+    const field = document.getElementById('apiKeyField');
+    const icon = document.getElementById('apiKeyToggleIcon');
+    
+    if (field.type === 'password') {
+      field.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      field.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    }
+  }
+
+  // Fungsi Copy diperbarui untuk memastikan teks tetap tercopy meski statusnya tipe 'password'
+  function copyKey() {
+    const i = document.getElementById('apiKeyField');
+    
+    // Gunakan modern Clipboard API jika browser mendukung
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(i.value);
+    } else {
+      // Fallback untuk browser lama
+      const currentType = i.type;
+      i.type = 'text'; // Ubah sementara ke text agar tidak meng-copy bulatan password
+      i.select();
+      document.execCommand('copy');
+      i.type = currentType; // Kembalikan ke tipe semula
+    }
+    
+    if(typeof showToast === 'function') {
+      showToast('Kunci API berhasil disalin', 'success');
+    } else {
+      alert('Kunci API berhasil disalin!');
+    }
+  }
+
+  async function doRegen() {
+    closeRegenModal();
+    try {
+      const r = await fetch('/api/user/api-key/regenerate', { method: 'POST' });
+      const d = await r.json();
+      document.getElementById('apiKeyField').value = d.apiKey;
+      
+      // Kembalikan input ke format password dan ubah ikon kembali ke fa-eye jika habis di-regenerate
+      document.getElementById('apiKeyField').type = 'password';
+      document.getElementById('apiKeyToggleIcon').classList.replace('fa-eye-slash', 'fa-eye');
+      
+      if(typeof showToast === 'function') {
+        showToast('Kunci API baru berhasil dibuat', 'success');
+      } else {
+        alert('Kunci API baru berhasil dibuat!');
+      }
+    } catch (err) {
+      console.error(err);
+      if(typeof showToast === 'function') {
+        showToast('Gagal membuat kunci API', 'error');
+      } else {
+        alert('Gagal membuat kunci API');
+      }
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

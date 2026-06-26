@@ -1,0 +1,103 @@
+<%- include('partials/header', { title: 'Pengaturan Akun Admin' }) %>
+
+<!-- Page Header -->
+<div class="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4 font-medium">
+  <div>
+    <h1 class="text-xl font-medium text-gray-900">Akun Admin</h1>
+    <p class="text-xs font-medium text-gray-900 mt-1">Perbarui informasi username, dan kata sandi untuk akun administrator Anda.</p>
+  </div>
+</div>
+
+<!-- Menangkap pesan error dari server menggunakan Toast -->
+<% if (typeof error !== 'undefined' && error) { %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      showToast('<%= error %>', 'error');
+    });
+  </script>
+<% } %>
+
+<!-- Menangkap pesan success dari server menggunakan Toast -->
+<% if (typeof success !== 'undefined' && success) { %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      showToast('<%= success %>', 'success');
+    });
+  </script>
+<% } %>
+
+<!-- Form Container -->
+<div class="card-custom p-6 mb-8 font-medium max-w-2xl">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center font-medium">
+      <i class="fas fa-user-shield text-xs"></i>
+    </div>
+    <h2 class="text-xl font-medium text-gray-900">Detail Kredensial</h2>
+  </div>
+
+  <!-- Memindahkan disable button ke onsubmit agar validasi required tetap berjalan -->
+  <form method="POST" action="/admin/account" class="space-y-5 font-medium" autocomplete="off" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
+    
+    <!-- Username Field -->
+    <div>
+      <label class="block text-xs font-medium text-gray-700 mb-1.5">Username</label>
+      <input name="username" type="text" value="<%= admin.username %>" placeholder="Masukkan username..." 
+             class="form-control-custom text-xs font-medium text-gray-700" 
+             maxlength="15" pattern="[^\s]+" title="Username tidak boleh mengandung spasi" required>
+      <p class="text-[10px] text-gray-400 mt-1">Maksimal 15 karakter, tanpa spasi, huruf kecil otomatis.</p>
+    </div>
+
+    <!-- Password Baru Field -->
+    <div>
+      <label class="block text-xs font-medium text-gray-700 mb-1.5">Kata Sandi Baru (Opsional)</label>
+      <div class="relative">
+        <input id="newPasswordInput" name="newPassword" type="password" placeholder="Kosongkan jika tidak ingin mengubah password..." class="form-control-custom pr-10 text-xs font-medium text-gray-700">
+        <!-- Tombol Ikon Mata -->
+        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center cursor-pointer text-gray-400 hover:text-gray-900 transition-colors" onclick="togglePassword('newPasswordInput', 'newToggleIcon')">
+          <i id="newToggleIcon" class="far fa-eye text-xs"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Saat Ini Field (Wajib untuk validasi keamanan) -->
+    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
+      <label class="block text-xs font-medium text-gray-900 mb-1.5 flex items-center justify-between">
+        <span>Kata Sandi Saat Ini <span class="text-red-500">*</span></span>
+      </label>
+      <div class="relative">
+        <input id="currentPasswordInput" name="password" type="password" placeholder="Masukkan kata sandi saat ini untuk otorisasi..." class="form-control-custom pr-10 text-xs font-medium text-gray-700" required>
+        <!-- Tombol Ikon Mata -->
+        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center cursor-pointer text-gray-400 hover:text-gray-900 transition-colors" onclick="togglePassword('currentPasswordInput', 'currentToggleIcon')">
+          <i id="currentToggleIcon" class="far fa-eye text-xs"></i>
+        </div>
+      </div>
+      <p class="text-[10px] text-gray-900 mt-2 leading-relaxed">
+        Sebagai langkah keamanan, Anda diwajibkan memasukkan kata sandi saat ini untuk menyimpan perubahan pada akun.
+      </p>
+    </div>
+
+    <!-- Submit Button: menghapus onclick="this.form.submit()" yang merusak validasi -->
+    <button type="submit" class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 w-full py-3 text-xs font-medium flex items-center justify-center gap-2 mt-4 rounded-lg transition-all">
+      <i class="fas fa-save text-xs"></i> Simpan Perubahan
+    </button>
+  </form>
+</div>
+
+<!-- Script untuk Toggle Password -->
+<script>
+  function togglePassword(inputId, iconId) {
+    const passwordInput = document.getElementById(inputId);
+    const toggleIcon = document.getElementById(iconId);
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.classList.remove('fa-eye');
+      toggleIcon.classList.add('fa-eye-slash');
+    } else {
+      passwordInput.type = 'password';
+      toggleIcon.classList.remove('fa-eye-slash');
+      toggleIcon.classList.add('fa-eye');
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

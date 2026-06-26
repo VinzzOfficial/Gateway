@@ -1,0 +1,108 @@
+<%- include('partials/header') %>
+
+<style>
+  .card-custom { 
+    background-color: #ffffff; 
+    border-radius: 16px; 
+    border: 1px solid #f3f4f6; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease; 
+  }
+  .card-custom:hover { 
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
+    transform: translateY(-3px); 
+  }
+</style>
+
+<!-- Container utama langsung menyatu dengan body (tanpa card-custom) -->
+<div class="flex flex-col items-center justify-center min-h-[75vh] font-medium px-2 w-full max-w-4xl mx-auto text-center mt-4 mb-12">
+  
+  <!-- Badge Status Aktif -->
+  <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white text-gray-700 text-xs font-medium mb-8 border border-gray-200 shadow-sm">
+    <span class="relative flex h-2 w-2">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+    </span>
+    Sistem API Gateway Aktif
+  </div>
+
+  <!-- Header / Hero Text -->
+  <div class="mb-8 font-medium">
+    <!-- Ikon utama: jika ada logoUrl, tampilkan gambar, selain itu tampilkan ikon bolt -->
+    <% if (settings.logoUrl) { %>
+      <img src="<%= settings.logoUrl %>" alt="Logo" class="w-12 h-12 rounded-xl object-cover mx-auto mb-4 shadow-sm" />
+    <% } else { %>
+      <div class="w-12 h-12 rounded-xl bg-gray-900 text-white flex items-center justify-center text-xl mx-auto mb-4 font-medium shadow-sm">
+        <i class="fa-solid fa-bolt text-xl"></i>
+      </div>
+    <% } %>
+    
+    <!-- Title Diambil dari Settings Admin -->
+    <h1 class="text-xl font-medium text-gray-900 mb-2">
+      <%= settings.title || settings.name || 'Layanan Payment Gateway' %>
+    </h1>
+    
+    <!-- Deskripsi Diambil dari Settings Admin -->
+    <p class="text-xs font-medium text-gray-700 max-w-2xl mx-auto leading-relaxed">
+      <%= settings.description || 'Terima pembayaran melalui QRIS Payment untuk Aplikasi atau Platform Bisnis kamu dengan mudah, cepat, dan aman.' %>
+    </p>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex flex-col items-center justify-center gap-3 mb-12 font-medium w-full sm:w-auto">
+    <!-- Tombol Daftar -->
+    <a href="/register" class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 w-full px-8 py-3 text-sm font-medium flex items-center justify-center gap-2 rounded-lg transition-all shadow-sm">
+      Mulai Gratis Sekarang <i class="fas fa-arrow-right text-l"></i>
+    </a>
+    
+    <!-- Tombol Dokumentasi API -->
+    <a href="/docs" class="mt-1 text-sm font-medium flex text-gray-900 items-center underline justify-center">Panduan Integrasi API</a>
+  </div>
+
+  <!-- Garis Pemisah Tengah -->
+  <div class="w-full h-px bg-gray-200 mb-8 mt-2"></div>
+
+  <!-- Features Grid (2 Kolom agar 4 Card terlihat seimbang/simetris) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full text-left font-medium">
+    
+    <!-- Fitur 1 -->
+    <div class="card-custom p-5">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="text-gray-900"><i class="fa-solid fa-shield-halved text-xl"></i></div>
+        <h3 class="text-sm font-medium text-gray-900">Keamanan Berlapis</h3>
+      </div>
+      <p class="text-xs font-medium text-gray-900">Transaksi diproses melalui otentikasi ketat dan deteksi anti-spam.</p>
+    </div>
+
+    <!-- Fitur 2 -->
+    <div class="card-custom p-5">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="text-gray-900"><i class="fa-solid fa-bolt-lightning text-xl"></i></div>
+        <h3 class="text-sm font-medium text-gray-900">Sistem Otomatis</h3>
+      </div>
+      <p class="text-xs font-medium text-gray-900">Sistem Saldo langsung masuk tanpa tunggu H1+ & Withdraw Proses Cepat.</p>
+    </div>
+
+    <!-- Fitur 3 -->
+    <div class="card-custom p-5">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="text-gray-900"><i class="fa-solid fa-laptop-code text-xl"></i></div>
+        <h3 class="text-sm font-medium text-gray-900">Integrasi API Mudah</h3>
+      </div>
+      <p class="text-xs font-medium text-gray-900">Kami hanya memiliki 1 halaman Docs, dan itu sudah sangat cukup untuk menjelaskan cara integrasi platform kami.</p>
+    </div>
+
+    <!-- Fitur 4 -->
+    <div class="card-custom p-5">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="text-gray-900"><i class="fa-solid fa-coins text-xl"></i></div>
+        <h3 class="text-sm font-medium text-gray-900">Fee & Biaya Transaksi Rendah</h3>
+      </div>
+      <p class="text-xs font-medium text-gray-900">Nikmati fee biaya yang sangat rendah untuk memaksimalkan keuntungan Anda.</p>
+    </div>
+
+  </div>
+
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,105 @@
+<%- include('partials/header', { title: 'Daftar Akun' }) %>
+
+<div class="flex flex-col items-center justify-center min-h-[75vh] font-medium">
+  
+  <div class="card-custom p-8 w-full max-w-md relative overflow-hidden font-medium">
+    <!-- Garis Aksen -->
+    <div class="absolute top-0 left-0 w-full h-1.5 bg-gray-900"></div>
+
+    <!-- Header Register -->
+    <div class="text-center mb-8 mt-2 font-medium">
+      <% if (settings.logoUrl) { %>
+        <img src="<%= settings.logoUrl %>" alt="Logo" class="w-12 h-12 rounded-xl object-cover mx-auto mb-4 shadow-sm" />
+      <% } else { %>
+        <div class="w-12 h-12 rounded-xl bg-gray-900 text-white flex items-center justify-center text-xl mx-auto mb-4 font-medium shadow-sm">
+          <i class="fa-solid fa-bolt text-xl"></i>
+        </div>
+      <% } %>
+      <h2 class="text-xl font-medium text-gray-900">Buat Akun Baru</h2>
+      <p class="text-xs font-medium text-gray-900 mt-1">Daftar untuk mulai menggunakan layanan kami</p>
+    </div>
+
+    <!-- Alert Error -->
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="bg-red-100 border-red-400 text-red-800 px-4 py-3 rounded-lg mb-6 text-xs font-medium flex items-center gap-2">
+        <i class="fas fa-exclamation-circle text-xl"></i> <%= error %>
+      </div>
+    <% } %>
+
+    <!-- Form Register -->
+    <form method="POST" action="/register" class="space-y-5 font-medium" autocomplete="off">
+      
+      <!-- Username -->
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Username</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+            <i class="fas fa-user text-xs"></i>
+          </div>
+          <input name="username" type="text" placeholder="username" 
+                 class="form-control-custom pl-10 text-xs font-medium text-gray-700" 
+                 maxlength="15" pattern="[^\s]+" title="Username tidak boleh mengandung spasi" required>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Alamat Email</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+            <i class="far fa-envelope text-xs"></i>
+          </div>
+          <input name="email" type="email" placeholder="nama@email.com" class="form-control-custom pl-10 text-xs font-medium text-gray-700" required>
+        </div>
+      </div>
+      
+      <!-- Password -->
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Password</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+            <i class="fas fa-lock text-xs"></i>
+          </div>
+          <input id="passwordInput" name="password" type="password" placeholder="••••••••" 
+                 class="form-control-custom pl-10 pr-10 text-xs font-medium text-gray-700" required>
+          <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center cursor-pointer text-gray-400 hover:text-gray-900 transition-colors" onclick="togglePassword()">
+            <i id="toggleIcon" class="far fa-eye text-xs"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 w-full py-3 text-xs font-medium flex items-center justify-center gap-2 rounded-lg transition-all">
+          Daftar Sekarang <i class="fas fa-user-plus text-xs"></i>
+        </button>
+      </div>
+    </form>
+
+    <!-- Link Login -->
+    <div class="mt-8 text-center text-xs font-medium text-gray-900">
+      Sudah punya akun? 
+      <a href="/login" class="font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors text-xs">Masuk di sini</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Script untuk Toggle Password -->
+<script>
+  function togglePassword() {
+    const passwordInput = document.getElementById('passwordInput');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.classList.remove('fa-eye');
+      toggleIcon.classList.add('fa-eye-slash');
+    } else {
+      passwordInput.type = 'password';
+      toggleIcon.classList.remove('fa-eye-slash');
+      toggleIcon.classList.add('fa-eye');
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

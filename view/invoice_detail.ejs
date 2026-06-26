@@ -1,0 +1,80 @@
+<%- include('partials/header', { title: 'Detail Invoice' }) %>
+
+<div class="max-w-lg mx-auto font-medium">
+  <!-- Tombol Kembali -->
+  <a href="/deposit" class="inline-flex items-center gap-2 text-sm font-medium text-gray-900 hover:text-gray-900 transition-colors mb-6">
+    <i class="fas fa-arrow-left text-xs"></i> Kembali ke Riwayat
+  </a>
+
+  <!-- Card Invoice -->
+  <div class="card-custom p-8 text-center relative overflow-hidden font-medium">
+    <!-- Garis Aksen di atas Card diubah ke Hitam (Grayscale) -->
+    <div class="absolute top-0 left-0 w-full h-1.5 bg-gray-900"></div>
+
+    <h2 class="text-xl font-medium text-gray-900 mt-2 mb-1">Detail Pembayaran</h2>
+    <!-- Tracking-wide dihapus, text-sm diubah ke text-xs -->
+    <p class="text-xs font-medium text-gray-900 mb-6">ID: <%= inv._id %></p>
+
+    <!-- Badge Status -->
+    <div class="mb-2">
+      <span class="status-badge font-medium <%= inv.status === 'paid' ? 'status-success' : inv.status === 'expired' ? 'status-error' : 'status-pending' %> text-xs px-4 py-1.5">
+        <!-- Teks kapital diubah menjadi Normal/Title Case -->
+        <% if(inv.status === 'paid'){ %><i class="fas fa-check-circle text-xs"></i> Lunas<% } %>
+        <% if(inv.status === 'pending'){ %><i class="fas fa-clock text-xs"></i> Menunggu Pembayaran<% } %>
+        <% if(inv.status === 'expired'){ %><i class="fas fa-times-circle text-xs"></i> Kedaluwarsa<% } %>
+      </span>
+    </div>
+
+    <!-- Batas Waktu Expired (Dipindah ke sini, di bawah status) -->
+    <div class="mb-6">
+      <p class="text-xs font-medium text-gray-900 flex items-center justify-center gap-1.5">
+        <i class="far fa-clock text-xs"></i> Berlaku hingga: <%= inv.expiredAt.toLocaleString() %>
+      </p>
+    </div>
+
+    <!-- Rincian Nominal -->
+    <div class="bg-gray-100 rounded-xl p-4 mb-6 border border-gray-200 text-left font-medium">
+      <div class="flex justify-between items-center mb-3">
+        <span class="text-xs font-medium text-gray-900">Biaya Admin (Fee) :</span>
+        <span class="text-sm font-medium text-gray-900">Rp <%= typeof inv.fee === 'number' ? inv.fee.toLocaleString() : inv.fee %></span>
+      </div>
+      <div class="border-t border-gray-200 pt-3 flex justify-between items-center">
+        <span class="text-xs font-medium text-gray-700">Total Tagihan :</span>
+        <!-- text-2xl dan warna biru diubah ke text-xl dan abu gelap/hitam -->
+        <span class="text-sm font-medium text-gray-900">Rp <%= inv.total.toLocaleString() %></span>
+      </div>
+    </div>
+
+    <!-- Area QRIS / Alert Status -->
+    <% if (inv.status === 'pending') { %>
+      <div class="mb-4 font-medium">
+        <div class="inline-block p-3 bg-white border border-gray-200 rounded-2xl shadow-sm mb-4">
+          <img src="<%= inv.qris_image %>" class="w-48 h-48 object-contain rounded-xl" alt="QRIS Deposit">
+        </div>
+        <p class="text-xs font-medium text-gray-900">Scan QR Code di atas</p>
+        <p class="text-xs font-medium text-gray-900 mt-1 leading-relaxed">Gunakan aplikasi E-Wallet (DANA, OVO, GoPay) atau Mobile Banking Anda. Status akan diperbarui otomatis setelah dibayar.</p>
+      </div>
+    <% } else if (inv.status === 'paid') { %>
+      <!-- State Paid diubah ke Grayscale -->
+      <div class="bg-gray-200 border border-gray-300 text-gray-900 px-4 py-4 rounded-xl text-xs font-medium mb-4 flex flex-col items-center justify-center gap-2">
+        <div class="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center text-white mb-1 font-medium">
+          <i class="fas fa-check text-xl"></i>
+        </div>
+        <span class="text-xl font-medium text-gray-900">Pembayaran Berhasil!</span>
+        <span class="text-xs font-medium text-gray-700 mt-0.5">Saldo telah ditambahkan ke akun Anda.</span>
+      </div>
+    <% } else { %>
+      <!-- State Expired diubah ke Grayscale -->
+      <div class="bg-gray-200 border border-gray-300 text-gray-900 px-4 py-4 rounded-xl text-xs font-medium mb-4 flex flex-col items-center justify-center gap-2">
+        <div class="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center text-white mb-1 font-medium">
+          <i class="fas fa-times text-xl"></i>
+        </div>
+        <span class="text-xl font-medium text-gray-900">Invoice Kedaluwarsa</span>
+        <span class="text-xs font-medium text-gray-700 mt-0.5">Silakan buat invoice baru di halaman deposit.</span>
+      </div>
+    <% } %>
+
+  </div>
+</div>
+
+<%- include('partials/footer') %>

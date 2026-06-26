@@ -1,0 +1,129 @@
+<%- include('partials/header', { title: 'Profil' }) %>
+
+<div class="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4 font-medium">
+  <div>
+    <h1 class="text-xl font-medium text-gray-900 tracking-tight">Profil Pengguna</h1>
+    <p class="text-xs font-medium text-gray-900 mt-1">Kelola informasi akun dan preferensi data pencairan dana Anda.</p>
+  </div>
+</div>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      showToast('<%= success %>', 'success');
+    });
+  </script>
+<% } %>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      showToast('<%= error %>', 'error');
+    });
+  </script>
+<% } %>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 font-medium">
+  
+  <div class="card-custom p-6 font-medium">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-user-pen text-xs"></i>
+      </div>
+      <h2 class="text-xl font-medium text-gray-900">Informasi Akun</h2>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-xs font-medium text-gray-700 mb-1.5">Username</label>
+      <div class="form-control-custom text-xs font-medium text-gray-700 bg-gray-50 cursor-not-allowed select-all">
+        <%= user.username %>
+      </div>
+      <p class="text-[10px] text-gray-400 mt-1">Username tidak dapat diubah sendiri. Hubungi admin jika perlu perubahan.</p>
+    </div>
+
+    <form method="POST" action="/profile" class="space-y-4 font-medium">
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Alamat Email</label>
+        <input name="email" type="email" value="<%= user.email %>" class="form-control-custom text-xs font-medium text-gray-700" required>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5 flex items-center justify-between">
+          <span>Password Baru</span>
+          <span class="text-xs text-gray-600 font-medium bg-gray-100 px-2 py-0.5 rounded">Kosongkan jika tidak diubah</span>
+        </label>
+        <!-- Penambahan Form Grup Relatif untuk Ikon Mata -->
+        <div class="relative">
+          <input id="newPassword" name="newPassword" type="password" class="form-control-custom text-xs font-medium text-gray-700 w-full pr-10" placeholder="••••••••">
+          <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-900 focus:outline-none transition-colors">
+            <i id="toggleIcon" class="fas fa-eye text-xs"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="pt-2">
+        <button class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 w-full py-3 text-xs font-medium flex items-center justify-center gap-2 rounded-lg transition-all">
+          <i class="fas fa-save text-xs"></i> Simpan Profil
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card-custom p-6 font-medium">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center font-medium">
+        <i class="fas fa-wallet text-xs"></i>
+      </div>
+      <h2 class="text-xl font-medium text-gray-900">Data Pencairan (E-Wallet)</h2>
+    </div>
+
+    <form method="POST" action="/profile" class="space-y-4 font-medium">
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Metode Penerimaan</label>
+        <select name="ewallet" class="form-control-custom text-xs font-medium text-gray-700">
+          <option value="" <%= user.ewallet === '' ? 'selected' : '' %>>-- Pilih Metode --</option>
+          <option value="Dana" <%= user.ewallet === 'Dana' ? 'selected' : '' %>>DANA</option>
+          <option value="OVO" <%= user.ewallet === 'OVO' ? 'selected' : '' %>>OVO</option>
+          <option value="GoPay" <%= user.ewallet === 'GoPay' ? 'selected' : '' %>>GoPay</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Nomor Rekening / HP</label>
+        <input name="accountNumber" value="<%= user.accountNumber || '' %>" class="form-control-custom text-xs font-medium text-gray-700" placeholder="Contoh: 081234567890">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1.5">Nama Pemilik Akun</label>
+        <input name="accountName" value="<%= user.accountName || '' %>" class="form-control-custom text-xs font-medium text-gray-700" placeholder="Sesuai di aplikasi/KTP">
+      </div>
+
+      <div class="pt-2">
+        <button class="btn-dark-custom bg-gray-900 text-white hover:bg-gray-800 w-full py-3 text-xs font-medium flex items-center justify-center gap-2 rounded-lg transition-all">
+          <i class="fas fa-credit-card text-xs"></i> Simpan Data Wallet
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<!-- Script untuk Toggle Buka/Tutup Password -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('newPassword');
+    const toggleIcon = document.getElementById('toggleIcon');
+
+    if (togglePassword && passwordInput) {
+      togglePassword.addEventListener('click', function () {
+        // Toggle tipe input antara 'password' dan 'text'
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle class icon mata
+        toggleIcon.classList.toggle('fa-eye');
+        toggleIcon.classList.toggle('fa-eye-slash');
+      });
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>
