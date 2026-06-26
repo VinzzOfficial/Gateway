@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff" />
+  <title><%= typeof title !== 'undefined' ? title + ' - ' + settings.name : settings.name %></title>
+  
+  <!-- Description Dinamis -->
+  <% if (settings.description) { %>
+  <meta name="description" content="<%= settings.description %>">
+  <% } %>
+  
+  <!-- Favicon Dinamis -->
+  <% if (settings.logoUrl) { %>
+  <link rel="icon" type="image/jpeg" href="<%= settings.logoUrl %>">
+  <% } %>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Hanya memuat ketebalan font maksimal 500 (Medium) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = { 
+      theme: { 
+        extend: { 
+          // Memaksa semua jenis font bawaan Tailwind menjadi Poppins
+          fontFamily: { 
+            'sans': ['Poppins', 'sans-serif'],
+            'serif': ['Poppins', 'sans-serif'],
+            'mono': ['Poppins', 'sans-serif']
+          },
+          colors: { 'brand-dark': '#111827', 'brand-gray': '#4B5563' }
+        } 
+      } 
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+    body { 
+      position: relative; 
+      background: #f9fafb; 
+      color: #374151; /* gray-700 */
+      letter-spacing: -0.2px; 
+      min-height: 100vh;
+      font-weight: 500; /* Medium */
+      font-family: 'Poppins', sans-serif !important;
+      padding-top: 85px; 
+      padding-bottom: 50px;
+    }
+
+    .status-badge { 
+      font-size: 0.75rem;
+      padding: 2px 8px; 
+      font-weight: 600;
+      border-radius: 20px; 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 4px; 
+      color: #fff;
+      text-transform: lowercase;
+    }
+
+    /* Success */
+    .status-success { background: #16a34a; }
+    /* Pending */
+    .status-pending { background: #d97706; }
+    /* Error */
+    .status-error { background: #dc2626; }
+
+    /* Button dikembalikan ke Hitam dan font Putih */
+    .btn-dark-custom {
+      background-color: #111827; /* bg-gray-900 */
+      color: #ffffff; /* text-white */
+      border: none; border-radius: 8px;
+      padding: 10px 18px; font-weight: 500; font-size: 0.875rem; /* text-sm */
+      transition: all 0.3s ease; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .btn-dark-custom:hover { background-color: #1f2937; transform: translateY(-2px); box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15); }
+
+    .form-control-custom {
+      border-radius: 8px; padding: 10px 16px; border: 1px solid #d1d5db; 
+      font-size: 0.875rem; /* text-sm */ 
+      font-weight: 500; /* Medium */
+      color: #111827; /* text-gray-900 */
+      background-color: #fff; transition: all 0.2s ease; width: 100%; outline: none;
+    }
+    .form-control-custom:focus { border-color: #111827; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1); }
+
+    .fixed-navbar {
+      top: 0; left: 0; width: 100%; z-index: 40; padding: 12px 0; height: 65px;
+      background-color: rgba(255, 255, 255, 0.85); 
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      position: fixed; border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+    }
+    .navbar-container {
+      max-width: 72rem; margin: 0 auto; display: flex; justify-content: space-between;
+      align-items: center; padding: 0 1.5rem; height: 100%;
+    }
+
+    .hamburger-menu-wrapper { position: relative; }
+    .hamburger-checkbox { display: none; }
+    .hamburger-button {
+      display: flex; flex-direction: column; justify-content: center;
+      width: 40px; height: 40px; gap: 5px; cursor: pointer; padding: 8px; z-index: 50; 
+      position: relative; border-radius: 8px; transition: background 0.2s;
+    }
+    .hamburger-button:hover { background: #f3f4f6; }
+    .hamburger-button span {
+      display: block; width: 24px; height: 2px; background: #111827; /* text-gray-900 */
+      transition: all 0.3s ease-in-out; border-radius: 2px; margin: 0 auto;
+    }
+    .hamburger-checkbox:checked ~ .hamburger-button span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger-checkbox:checked ~ .hamburger-button span:nth-child(2) { opacity: 0; }
+    .hamburger-checkbox:checked ~ .hamburger-button span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      position: fixed; top: 0; right: -320px; width: 240px; height: 100vh; background: #ffffff;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 45; overflow-y: auto; 
+      padding-top: 80px; box-shadow: -10px 0 25px rgba(0,0,0,0.05);
+    }
+    .hamburger-checkbox:checked ~ .mobile-menu { right: 0; }
+    .mobile-menu-items { padding: 1.5rem; }
+    
+    /* Nav link mobile diubah ke warna biru */
+    .mobile-nav-link {
+      display: flex; align-items: center; color: #111827; /* text-blue-600 */ 
+      padding: 0.875rem 1.25rem;
+      margin-bottom: 0.5rem; transition: all 0.2s ease; text-decoration: none; font-weight: 500;
+      font-size: 0.875rem; /* text-sm */ 
+      border-radius: 10px; gap: 12px;
+    }
+    .mobile-nav-link:hover, .mobile-nav-link.active { color: #111827; background: #eff6ff; transform: translateX(4px); }
+    .mobile-nav-link i { font-size: 1rem; width: 20px; text-align: center; color: #111827; transition: color 0.2s; }
+    .mobile-nav-link:hover i { color: #1d4ed8; }
+    
+    .mobile-menu-divider { height: 1px; background: #e5e7eb; margin: 1.5rem 0; }
+    
+    .mobile-menu-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+      background: rgba(17, 24, 39, 0.4); backdrop-filter: blur(2px); 
+      z-index: 44; opacity: 0; visibility: hidden; transition: all 0.3s ease; cursor: pointer;
+    }
+    .hamburger-checkbox:checked ~ .mobile-menu-overlay { opacity: 1; visibility: visible; }
+
+    .desktop-menu { display: none; }
+    @media (min-width: 1024px) { .desktop-menu { display: flex; } }
+    
+    /* Nav link desktop diubah ke warna biru */
+    .nav-link { 
+      position: relative; color: #111827; /* text-blue-600 */ 
+      transition: color 0.2s ease; 
+      display: flex; align-items: center; gap: 6px; padding: 0.5rem 0;
+      font-weight: 500;
+    }
+    .nav-link:hover { color: #1d4ed8; }
+    .nav-link::after {
+      content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 0;
+      background-color: #2563eb; transition: width 0.3s ease; border-radius: 2px;
+    }
+    .nav-link:hover::after { width: 100%; }
+
+    .card-custom { 
+      background-color: #ffffff; border-radius: 16px; border: 1px solid #f3f4f6; 
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+      transition: all 0.3s ease; 
+    }
+    .card-custom:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transform: translateY(-3px); }
+
+    select {
+      appearance: none; -webkit-appearance: none; -moz-appearance: none;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E") no-repeat right 1rem center/12px;
+      padding-right: 2.5rem !important;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="fixed-navbar">
+  <div class="navbar-container">
+    <!-- Logo/Brand (dinamis dari settings.logoUrl) -->
+    <a href="/" class="flex items-center gap-2 text-xl font-medium text-gray-900 tracking-tight">
+      <% if (settings.logoUrl) { %>
+        <img src="<%= settings.logoUrl %>" alt="Logo" class="w-8 h-8 rounded-lg object-cover" />
+      <% } else { %>
+        <div class="w-8 h-8 rounded-lg bg-gray-900 text-white flex items-center justify-center text-sm font-medium">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+      <% } %>
+      <%= settings.name %>
+    </a>
+
+    <% if (user) { %>
+    <!-- Desktop Menu -->
+    <div class="desktop-menu items-center gap-7 text-sm font-medium">
+      <% if (user.role === 'admin') { %>
+        <a href="/admin/dashboard" class="nav-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <a href="/admin/users" class="nav-link"><i class="fa-solid fa-users"></i> Users</a>
+        <a href="/admin/withdraw" class="nav-link"><i class="fa-solid fa-money-bill-transfer"></i> Withdraw</a>
+        <a href="/admin/transactions" class="nav-link"><i class="fa-solid fa-receipt"></i> Transaksi</a>
+        <a href="/admin/settings" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a>
+        <!-- Penambahan Menu Admin Account -->
+        <a href="/admin/account" class="nav-link"><i class="fa-solid fa-user-shield"></i> Account</a>
+      <% } else { %>
+        <a href="/dashboard" class="nav-link"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="/deposit" class="nav-link"><i class="fa-solid fa-wallet"></i> Deposit</a>
+        <a href="/withdraw" class="nav-link"><i class="fa-solid fa-money-bill-wave"></i> Withdraw</a>
+        <a href="/profile" class="nav-link"><i class="fa-solid fa-user"></i> Profil</a>
+        <a href="/docs" class="nav-link"><i class="fa-solid fa-code"></i> API</a>
+      <% } %>
+      
+      <div class="h-6 w-px bg-gray-300 mx-1"></div>
+      
+      <!-- Tombol Keluar (Hitam & Putih) -->
+      <a href="/logout" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors">
+        <i class="fa-solid fa-right-from-bracket"></i> Keluar
+      </a>
+    </div>
+
+    <!-- Mobile Actions (Hanya Hamburger) -->
+    <div class="flex items-center gap-1 lg:hidden">
+      <!-- Mobile Hamburger Menu -->
+      <div class="hamburger-menu-wrapper">
+        <input type="checkbox" class="hamburger-checkbox" id="hamburger-toggle">
+        <label for="hamburger-toggle" class="hamburger-button">
+          <span></span><span></span><span></span>
+        </label>
+        
+        <!-- Sidebar -->
+        <div class="mobile-menu">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+            <!-- Profil User (dinamis dari settings.logoUrl) -->
+            <% if (settings.logoUrl) { %>
+              <img src="<%= settings.logoUrl %>" alt="User Avatar" class="w-8 h-8 rounded-lg object-cover" />
+            <% } else { %>
+              <div class="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center text-white font-medium">
+                <i class="fa-solid fa-user"></i>
+              </div>
+            <% } %>
+            <div>
+              <!-- Nama user mobile -->
+              <p class="text-l font-medium text-gray-900"><%= settings.name %></p>
+            </div>
+          </div>
+
+          <div class="mobile-menu-items font-medium">
+            <% if (user.role === 'admin') { %>
+              <a href="/admin/dashboard" class="mobile-nav-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+              <a href="/admin/users" class="mobile-nav-link"><i class="fa-solid fa-users"></i> Users</a>
+              <a href="/admin/withdraw" class="mobile-nav-link"><i class="fa-solid fa-money-bill-transfer"></i> Withdraw</a>
+              <a href="/admin/transactions" class="mobile-nav-link"><i class="fa-solid fa-receipt"></i> Transaksi</a>
+              <a href="/admin/settings" class="mobile-nav-link"><i class="fa-solid fa-gear"></i> Settings</a>
+              <!-- Penambahan Menu Admin Account -->
+              <a href="/admin/account" class="mobile-nav-link"><i class="fa-solid fa-user-shield"></i> Account</a>
+            <% } else { %>
+              <a href="/dashboard" class="mobile-nav-link"><i class="fa-solid fa-house"></i> Dashboard</a>
+              <a href="/deposit" class="mobile-nav-link"><i class="fa-solid fa-wallet"></i> Deposit</a>
+              <a href="/withdraw" class="mobile-nav-link"><i class="fa-solid fa-money-bill-wave"></i> Withdraw</a>
+              <a href="/profile" class="mobile-nav-link"><i class="fa-solid fa-user"></i> Profil</a>
+              <a href="/docs" class="mobile-nav-link"><i class="fa-solid fa-code"></i> Dokumentasi API</a>
+            <!-- Menu Informasi Update -->
+            <a href="<%= settings.channelWhatsApp || '#' %>" target="_blank" class="mobile-nav-link">
+              <i class="fa-regular fa-bell"></i> Informasi Update
+            </a>              
+            <% } %>
+
+            <div class="mobile-menu-divider"></div>
+            
+            <!-- Tombol Keluar Mobile (Background Hitam & Putih) -->
+            <a href="/logout" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 rounded-lg transition-colors mt-2">
+              <i class="fa-solid fa-right-from-bracket"></i> Keluar
+            </a>
+          </div>
+        </div>
+        
+        <!-- Overlay -->
+        <div class="mobile-menu-overlay" onclick="document.getElementById('hamburger-toggle').checked = false"></div>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-6 py-2">
+  <!-- Konten main Anda di sini -->
